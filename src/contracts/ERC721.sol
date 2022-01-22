@@ -9,8 +9,17 @@ pragma solidity ^0.8.0;
     d. keep track of how many tokens an owner address has
     e. create an event that emits a transfer log - contract address, where it is being minted to, the id
 
-    */
+*/
 contract ERC721 {
+    
+    // from: Contract address
+    // to: user
+    // tokenId: token address
+    // indexed: careful use, uses more GAS !!!!!!!!!!!!!!!!!!!
+    event Transfer(address indexed from, address indexed to, uint indexed tokenId);
+
+
+
     // Mapping from token id to the owner;
     mapping(uint256 => address) private _tokenOwner;
 
@@ -35,5 +44,7 @@ contract ERC721 {
         _tokenOwner[tokenId] = to;
         // keeping track of each address that is minting
         _ownedTokensCount[to] += 1;
+
+        emit Transfer(address(0), to, tokenId);
     }
 }
