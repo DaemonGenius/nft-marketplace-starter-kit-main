@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "./ERC165.sol";
+import "./interfaces/IERC721.sol";
+
 /*
     Minting Function:
     a. nft to point to an address
@@ -10,23 +13,7 @@ pragma solidity ^0.8.0;
     e. create an event that emits a transfer log - contract address, where it is being minted to, the id
 
 */
-contract ERC721 {
-    // from: Contract address
-    // to: user
-    // tokenId: token address
-    // indexed: careful use, uses more GAS !!!!!!!!!!!!!!!!!!!
-    event Transfer(
-        address indexed from,
-        address indexed to,
-        uint256 indexed tokenId
-    );
-
-    event Approval(
-        address indexed owner,
-        address indexed approved,
-        uint256 indexed tokenId
-    );
-
+contract ERC721 is ERC165, IERC721 {
     // Mapping from token id to the owner;
     mapping(uint256 => address) private _tokenOwner;
 
@@ -35,6 +22,14 @@ contract ERC721 {
 
     // Mapping from token id to approved addresses
     mapping(uint256 => address) private _tokenApprovals;
+
+    constructor() {
+        _registerInterface(
+            bytes4(keccak256("balanceOf(bytes4)")) ^
+                bytes4(keccak256("ownerOf(bytes4)")) ^
+                bytes4(keccak256("transferFrom(bytes4)"))
+        );
+    }
 
     function _exists_check(uint256 tokenId) internal view returns (bool) {
         address owner = _tokenOwner[tokenId];
@@ -119,7 +114,7 @@ contract ERC721 {
         uint256 _tokenId
     )
         public
-        payable
+        override
         _token_exists_for_owner(_tokenId, _from)
         _invalid_address(_to)
     {
@@ -154,5 +149,4 @@ contract ERC721 {
     {
         return _tokenOwner[_tokenId];
     }
-
 }

@@ -2,13 +2,23 @@
 pragma solidity ^0.8.0;
 
 import "./ERC721.sol";
+import "./interfaces/IERC721Enumerable.sol";
 
-contract ERC721Enumerable is ERC721 {
+
+contract ERC721Enumerable is IERC721Enumerable, ERC721 {
     uint256[] private _allTokens;
 
     mapping(uint256 => uint256) private _allTokensIndex;
     mapping(address => uint256[]) private _ownedTokens;
     mapping(uint256 => uint256) private _ownedTokensIndex;
+
+      constructor() {
+        _registerInterface(
+            bytes4(keccak256("totalSupply(bytes4)")) ^
+                bytes4(keccak256("tokenByIndex(bytes4)")) ^
+                bytes4(keccak256("tokenOfOwnerByIndex(bytes4)"))
+        );
+    }
 
     /// @notice Count NFTs tracked by this contract
     /// @return A count of valid NFTs tracked by this contract, where each one of
@@ -22,7 +32,7 @@ contract ERC721Enumerable is ERC721 {
     /// @param _index A counter less than `totalSupply()`
     /// @return The token identifier for the `_index`th NFT,
     ///  (sort order not specified)
-    function tokenByIndex(uint256 _index) external view returns (uint256) {
+    function tokenByIndex(uint256 _index) external override view returns (uint256) {
         require(_index < this.totalSupply(), "global index is out of bounds");
         return _allTokens[_index];
     }
@@ -36,6 +46,7 @@ contract ERC721Enumerable is ERC721 {
     ///   (sort order not specified)
     function tokenOfOwnerByIndex(address _owner, uint256 _index)
         external
+        override
         view
         returns (uint256)
     {
